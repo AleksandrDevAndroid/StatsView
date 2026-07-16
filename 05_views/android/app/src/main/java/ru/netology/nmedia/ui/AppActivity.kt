@@ -10,7 +10,7 @@ import ru.netology.nmedia.databinding.ActivityAppBinding
 class AppActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+1
         enableEdgeToEdge()
 
         val binding = ActivityAppBinding.inflate(layoutInflater)
@@ -23,10 +23,10 @@ class AppActivity : AppCompatActivity() {
 
 
         binding.stats.data = listOf(
-            0.25F,
-            0.25F,
-            0.25F,
-            0.25F,
+            500F,
+            500F,
+            500F,
+            500F,
         )
     }
 }

@@ -67,21 +67,39 @@ class StatsView @JvmOverloads constructor(
         if (data.isEmpty()) {
             return
         }
+        if (data.contains(0F)) {
+            var startFrom = -90F
+            for ((index, datum) in data.withIndex()) {
+                val angle = 90F
+                if (datum == 0F) {
+                    paint.color = android.graphics.Color.WHITE
+                } else paint.color = colors.getOrNull(index) ?: randomColor()
+                canvas.drawArc(oval, startFrom, angle, false, paint)
+                startFrom += angle
+            }
 
-        var startFrom = -90F
-        for ((index, datum) in data.withIndex()) {
-            val angle = 360F * datum
-            paint.color = colors.getOrNull(index) ?: randomColor()
-            canvas.drawArc(oval, startFrom, angle, false, paint)
-            startFrom += angle
+        } else {
+            var startFrom = -90F
+            for ((index, datum) in data.withIndex()) {
+                val angle = 360F * (datum / data.sum())
+                paint.color = colors.getOrNull(index) ?: randomColor()
+                canvas.drawArc(oval, startFrom, angle, false, paint)
+                startFrom += angle
+            }
+
+
         }
 
+
         canvas.drawText(
-            "%.2f%%".format(data.sum() * 100),
+            "%.2f%%".format(data.sum() / (data.max() * data.size) * 100),
             center.x,
             center.y + textPaint.textSize / 4,
             textPaint,
         )
+
+        paint.color = colors.firstOrNull() ?: randomColor()
+        canvas.drawArc(oval, -90F, 0.1F, false, paint)
     }
 
     private fun randomColor() = Random.nextInt(0xFF000000.toInt(), 0xFFFFFFFF.toInt())
