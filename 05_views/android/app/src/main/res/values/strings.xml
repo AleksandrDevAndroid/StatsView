@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">NMedia</string>
+    <string name="parallel">parallel</string>
+    <string name="sequential">sequential</string>
+    <string name="bilateral">bilateral</string>
+
+
 </resources>

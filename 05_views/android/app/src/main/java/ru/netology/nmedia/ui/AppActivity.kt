@@ -1,16 +1,18 @@
 package ru.netology.nmedia.ui
 
 import android.os.Bundle
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.ActivityAppBinding
 
 class AppActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-1
         enableEdgeToEdge()
 
         val binding = ActivityAppBinding.inflate(layoutInflater)
@@ -20,13 +22,29 @@ class AppActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-
-
-        binding.stats.data = listOf(
-            500F,
-            500F,
-            500F,
-            500F,
+        val view = binding.stats
+        val defaultData = listOf(
+            0.0F,
+            0.25F,
+            0.25F,
+            0.25F,
         )
+        binding.buttonOne.setOnClickListener {
+            view.animation = StatsView.AnimationType.PARALLEL
+            view.data = defaultData
+        }
+
+        binding.buttonTwo.setOnClickListener {
+            view.animation = StatsView.AnimationType.SEQUENTIAL
+
+            view.data = defaultData
+
+        }
+
+        binding.buttonThree.setOnClickListener {
+            view.animation = StatsView.AnimationType.BILATERAL
+            view.data = defaultData
+        }
+
     }
 }

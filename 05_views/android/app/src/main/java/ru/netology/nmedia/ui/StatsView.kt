@@ -1,5 +1,6 @@
 package ru.netology.nmedia.ui
 
+import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
@@ -7,11 +8,13 @@ import android.graphics.PointF
 import android.graphics.RectF
 import android.util.AttributeSet
 import android.view.View
+import android.view.animation.LinearInterpolator
 import androidx.core.content.withStyledAttributes
 import ru.netology.nmedia.R
 import ru.netology.nmedia.util.AndroidUtils
 import kotlin.math.min
 import kotlin.random.Random
+import androidx.core.graphics.withRotation
 
 class StatsView @JvmOverloads constructor(
     context: Context,
@@ -19,6 +22,13 @@ class StatsView @JvmOverloads constructor(
     defStyleAttr: Int = 0,
     defStyleRes: Int = 0,
 ) : View(context, attrs, defStyleAttr, defStyleRes) {
+
+    enum class AnimationType {
+        PARALLEL,
+        SEQUENTIAL,
+        BILATERAL
+    }
+
     private var radius = 0F
     private var center = PointF(0F, 0F)
     private var oval = RectF(0F, 0F, 0F, 0F)
@@ -48,10 +58,33 @@ class StatsView @JvmOverloads constructor(
         textSize = fontSize
     }
 
+    private fun update() {
+        valueAnimator.let {
+            it?.removeAllListeners()
+            it?.cancel()
+        }
+        progress = 0F
+        valueAnimator = ValueAnimator.ofFloat(0F, 1F).apply {
+            addUpdateListener { anim ->
+                progress = anim.animatedValue as Float
+                invalidate()
+            }
+            duration = 2000
+            interpolator = LinearInterpolator()
+        }.also { it.start() }
+    }
+
+    private var progress = 0F
+    private var valueAnimator: ValueAnimator? = null
     var data: List<Float> = emptyList()
         set(value) {
             field = value
-            invalidate()
+            update()
+        }
+    var animation = AnimationType.PARALLEL
+        set(value) {
+            field = value
+            update()
         }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
@@ -67,30 +100,11 @@ class StatsView @JvmOverloads constructor(
         if (data.isEmpty()) {
             return
         }
-        if (data.contains(0F)) {
-            var startFrom = -90F
-            for ((index, datum) in data.withIndex()) {
-                val angle = 90F
-                if (datum == 0F) {
-                    paint.color = android.graphics.Color.WHITE
-                } else paint.color = colors.getOrNull(index) ?: randomColor()
-                canvas.drawArc(oval, startFrom, angle, false, paint)
-                startFrom += angle
-            }
-
-        } else {
-            var startFrom = -90F
-            for ((index, datum) in data.withIndex()) {
-                val angle = 360F * (datum / data.sum())
-                paint.color = colors.getOrNull(index) ?: randomColor()
-                canvas.drawArc(oval, startFrom, angle, false, paint)
-                startFrom += angle
-            }
-
-
+        when (animation) {
+            AnimationType.PARALLEL -> onDrawParallel(canvas)
+            AnimationType.SEQUENTIAL -> onDrawSequential(canvas)
+            AnimationType.BILATERAL -> onDrawBilateral(canvas)
         }
-
-
         canvas.drawText(
             "%.2f%%".format(data.sum() / (data.max() * data.size) * 100),
             center.x,
@@ -98,8 +112,55 @@ class StatsView @JvmOverloads constructor(
             textPaint,
         )
 
-        paint.color = colors.firstOrNull() ?: randomColor()
-        canvas.drawArc(oval, -90F, 0.1F, false, paint)
+    }
+
+    private fun onDrawParallel(canvas: Canvas) {
+        val rotationAngle = progress * 360F
+        canvas.withRotation(rotationAngle, center.x, center.y) {
+                var startFrom = -90F
+                for ((index, datum) in data.withIndex()) {
+                    val angle = 360 * datum
+                    if (datum == 0F) {
+                        paint.color = android.graphics.Color.WHITE
+                    } else paint.color = colors.getOrNull(index) ?: randomColor()
+                    drawArc(oval, startFrom, angle * progress, false, paint)
+                    startFrom += angle
+                }
+            if (!data.contains(0F)) {
+                paint.color = colors.firstOrNull() ?: randomColor()
+                drawArc(oval, -90F, 0.1F, false, paint)
+            }
+        }
+    }
+
+    private fun onDrawSequential(canvas: Canvas) {
+        val rotationAngle = progress * 360F
+        canvas.withRotation(rotationAngle, center.x, center.y) {
+            var startFrom = -90F
+            val step = 1F / data.size
+
+            for ((index, datum) in data.withIndex()) {
+                val angle = 360 * datum
+                paint.color = if (datum == 0F) {
+                    android.graphics.Color.WHITE
+                } else {
+                    colors.getOrNull(index) ?: randomColor()
+                }
+                val start = index * step
+                val end = (index + 1) * step
+                val lineProgress = when {
+                    progress <= start -> 0F
+                    progress >= end -> 1F
+                    else -> (progress - start) / step
+                }
+                drawArc(oval, startFrom, angle * lineProgress, false, paint)
+                startFrom += angle
+            }
+        }
+    }
+
+    private fun onDrawBilateral(canvas: Canvas) {
+       //TODO
     }
 
     private fun randomColor() = Random.nextInt(0xFF000000.toInt(), 0xFFFFFFFF.toInt())

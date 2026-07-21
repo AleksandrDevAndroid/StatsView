@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">NMedia</string>
+    <string name="parallel">Параллельнаяя</string>
+    <string name="sequential">Последовательная</string>
+    <string name="bilateral">Двусторонняя</string>
+
 </resources>
