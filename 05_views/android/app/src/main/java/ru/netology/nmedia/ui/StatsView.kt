@@ -117,15 +117,15 @@ class StatsView @JvmOverloads constructor(
     private fun onDrawParallel(canvas: Canvas) {
         val rotationAngle = progress * 360F
         canvas.withRotation(rotationAngle, center.x, center.y) {
-                var startFrom = -90F
-                for ((index, datum) in data.withIndex()) {
-                    val angle = 360 * datum
-                    if (datum == 0F) {
-                        paint.color = android.graphics.Color.WHITE
-                    } else paint.color = colors.getOrNull(index) ?: randomColor()
-                    drawArc(oval, startFrom, angle * progress, false, paint)
-                    startFrom += angle
-                }
+            var startFrom = -90F
+            for ((index, datum) in data.withIndex()) {
+                val angle = 360 * datum
+                if (datum == 0F) {
+                    paint.color = android.graphics.Color.WHITE
+                } else paint.color = colors.getOrNull(index) ?: randomColor()
+                drawArc(oval, startFrom, angle * progress, false, paint)
+                startFrom += angle
+            }
             if (!data.contains(0F)) {
                 paint.color = colors.firstOrNull() ?: randomColor()
                 drawArc(oval, -90F, 0.1F, false, paint)
@@ -138,7 +138,6 @@ class StatsView @JvmOverloads constructor(
         canvas.withRotation(rotationAngle, center.x, center.y) {
             var startFrom = -90F
             val step = 1F / data.size
-
             for ((index, datum) in data.withIndex()) {
                 val angle = 360 * datum
                 paint.color = if (datum == 0F) {
@@ -160,7 +159,22 @@ class StatsView @JvmOverloads constructor(
     }
 
     private fun onDrawBilateral(canvas: Canvas) {
-       //TODO
+        var startFrom = -90F
+        for ((index, datum) in data.withIndex()) {
+            val angle = 360 * datum
+            paint.color = if (datum == 0F) {
+                android.graphics.Color.WHITE
+            } else {
+                colors.getOrNull(index) ?: randomColor()
+            }
+            val halfAngle = angle / 2
+            val center = startFrom + halfAngle
+            val drawAngle = angle * progress
+            canvas.drawArc(
+                oval, center - drawAngle / 2, drawAngle,false,paint
+            )
+            startFrom += angle
+        }
     }
 
     private fun randomColor() = Random.nextInt(0xFF000000.toInt(), 0xFFFFFFFF.toInt())

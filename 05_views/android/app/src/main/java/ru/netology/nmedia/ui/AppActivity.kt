@@ -24,24 +24,22 @@ class AppActivity : AppCompatActivity() {
         }
         val view = binding.stats
         val defaultData = listOf(
-            0.0F,
+            0.25F,
             0.25F,
             0.25F,
             0.25F,
         )
-        binding.buttonOne.setOnClickListener {
+        binding.buttonParallel.setOnClickListener {
             view.animation = StatsView.AnimationType.PARALLEL
             view.data = defaultData
         }
 
-        binding.buttonTwo.setOnClickListener {
+        binding.buttonSequential.setOnClickListener {
             view.animation = StatsView.AnimationType.SEQUENTIAL
-
             view.data = defaultData
-
         }
 
-        binding.buttonThree.setOnClickListener {
+        binding.buttonBilateral.setOnClickListener {
             view.animation = StatsView.AnimationType.BILATERAL
             view.data = defaultData
         }
