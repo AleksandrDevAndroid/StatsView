@@ -6,7 +6,7 @@ appcompat = "1.7.1"
 mapsMobile = "4.29.0-lite"
 material = "1.13.0"
 activity = "1.12.2"
-constraintlayout = "2.2.1"
+constraintlayout = "2.2.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
